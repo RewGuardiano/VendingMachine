@@ -38,11 +38,36 @@ namespace VendingMachineSYS
             this.calories = calories;
         }
 
+        public int GetMenuItemId()
+        {
+            return menuItemId;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+        public float GetPrice() 
+        { 
+            return price;
+        }
+        public string GetDescription()
+        {
+            return description;
+        }
+        public int GetCatId()
+        {
+            return catId;
+        }
+        public float GetCalories() { 
+            return calories;
+        }
+
         // Use this function to set an appropriate ID number based on the next ID which can be used in the database without conflict with the primary key constraint. 
 
         public void DeduceID()
         {
-           /* Program.connectionStr is the connection string accessed from the Program.cs file as a static member of a project-internally visible Program class.
+           /* DBConnect.oradb is the connection string accessed from the Program.cs file as a static member of a project-internally visible Program class.
             * 
             * May be declared in Program.cs as:
             * 
@@ -61,7 +86,7 @@ namespace VendingMachineSYS
             * 
             */
 
-            OracleConnection connection = new OracleConnection(Program.connectionStr);
+            OracleConnection connection = new OracleConnection(DBConnect.oradb);
             try
             {
                 connection.Open();
@@ -82,7 +107,7 @@ namespace VendingMachineSYS
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to deduce ID for an instance of \"MenuItem\".\n\n" + ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Failed to deduce ID for an instance of \"Menu\".\n\n" + ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             // If there are other Menu objects in the database, deduce the appropriate ID. Set the ID to the greatest existing ID + 1
@@ -98,7 +123,7 @@ namespace VendingMachineSYS
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Failed to deduce ID for an instance of \"MenuItem\".\n\n" + ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Failed to deduce ID for an instance of \"Menu\".\n\n" + ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     menuItemId = -1;
                 }
             }
@@ -110,10 +135,12 @@ namespace VendingMachineSYS
         }
         public bool AddMenuItem()
         {
+
+            if (MenuItemExists(menuItemId)) return true;
             string commandStr = "INSERT INTO MENU VALUES(" + menuItemId + ", '" + name + "', " + price + ", '" + description + "', " + catId + ", " + calories + ")";
             try
             {
-                OracleConnection connection = new OracleConnection(Program.connectionStr);
+                OracleConnection connection = new OracleConnection(DBConnect.oradb);
                 connection.Open();
                 OracleCommand command = new OracleCommand(commandStr, connection);
                 command.ExecuteNonQuery();
@@ -125,12 +152,24 @@ namespace VendingMachineSYS
             }
             return false;
         }
+
+        private bool MenuItemExists(int miID)
+        {
+            OracleConnection conn = new OracleConnection(DBConnect.oradb);
+            string sqlQuery = "SELECT COUNT(*) FROM MENU WHERE MENUID = :menuID";
+            OracleCommand cmd = new OracleCommand(sqlQuery, conn);
+            cmd.Parameters.Add(new OracleParameter(":menuID", miID));
+            conn.Open();
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            conn.Close();
+            return count > 0; // Return true if the category exists, false otherwise
+        }
         public bool UpdateMenuItem()
         {
             string commandStr = "UPDATE MENU SET MENUID=" + menuItemId + ", NAME='" + name + "', PRICE=" + price + ", DESCRIPTION='" + description + "', CATID=" + catId + ", CALORIES=" + calories + " WHERE MENUID=" + menuItemId;
             try
             {
-                OracleConnection connection = new OracleConnection(Program.connectionStr);
+                OracleConnection connection = new OracleConnection(DBConnect.oradb);
                 connection.Open();
                 OracleCommand command = new OracleCommand(commandStr, connection);
                 command.ExecuteNonQuery();
@@ -148,7 +187,7 @@ namespace VendingMachineSYS
             string commandStr = "DELETE FROM MENU WHERE MENUID=" + menuItemId;
             try
             {
-                OracleConnection connection = new OracleConnection(Program.connectionStr);
+                OracleConnection connection = new OracleConnection(DBConnect.oradb);
                 connection.Open();
                 OracleCommand command = new OracleCommand(commandStr, connection);
                 command.ExecuteNonQuery();
@@ -160,6 +199,18 @@ namespace VendingMachineSYS
                 MessageBox.Show(commandStr + ": Failed to perform database operation.\n\n" + ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return false;
+        }
+
+        public static MenuItem FindMenuItemByName(string menuItemName)
+        {
+            OracleConnection conn = new OracleConnection(DBConnect.oradb);
+            conn.Open();
+            OracleCommand query = new OracleCommand("SELECT * FROM MENU WHERE NAME LIKE '" + menuItemName + "'", conn);
+            OracleDataReader reader = query.ExecuteReader();
+            reader.Read();
+            MenuItem menuItem = new MenuItem(reader.GetInt32(0), reader.GetString(1), reader.GetFloat(2), reader.GetString(3), reader.GetInt32(4), reader.GetFloat(5));
+            conn.Close();
+            return menuItem;
         }
     }
 }

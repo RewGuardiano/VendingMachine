@@ -12,16 +12,38 @@ namespace VendingMachineSYS
 {
     public partial class FrmSides : Form
     {
-        public FrmSides()
+        private FrmOrderScreen frmOrderScreen;
+        public FrmSides(FrmOrderScreen frmOrderScreen)
         {
+            this.frmOrderScreen = frmOrderScreen;
             InitializeComponent();
         }
 
-        private void btnBackSides_Click(object sender, EventArgs e)
+        private void FrmSides_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Form to = new FrmOrderScreen();
-            to.Show();
+            frmOrderScreen.Show();
+        }
+
+        private void btnBackDesserts_Click(object sender, EventArgs e)
+        {
             this.Close();
+            frmOrderScreen.Show();
+        }
+
+        private void btn_fries_Click(object sender, EventArgs e)
+        {
+            int orderNumber = frmOrderScreen.GetOrderCount();
+            Order order = new Order(-1, orderNumber, MenuItem.FindMenuItemByName("Fries").GetMenuItemId());
+            order.AddOrder();
+            frmOrderScreen.AddOrderNumber(orderNumber);
+        }
+
+        private void btn_nugets_Click(object sender, EventArgs e)
+        {
+            int orderNumber = frmOrderScreen.GetOrderCount();
+            Order order = new Order(-1, orderNumber, MenuItem.FindMenuItemByName("Nugets").GetMenuItemId());
+            order.AddOrder();
+            frmOrderScreen.AddOrderNumber(orderNumber);
         }
     }
 }

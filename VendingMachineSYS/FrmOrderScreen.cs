@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +13,7 @@ namespace VendingMachineSYS
 {
     public partial class FrmOrderScreen : Form
     {
+        private ArrayList orderNumbers = new ArrayList();
         public FrmOrderScreen()
         {
             InitializeComponent();
@@ -21,38 +23,48 @@ namespace VendingMachineSYS
         {
 
         }
+
+        public int GetOrderCount()
+        {
+            return orderNumbers.Count;
+        }
         
+        public void AddOrderNumber(int number)
+        {
+            orderNumbers.Add(number);
+        }
+
         private void btnBurgers_Click(object sender, EventArgs e)
         {
-            FrmBurgers to = new FrmBurgers();
+            FrmBurgers to = new FrmBurgers(this);
             to.Show();
             this.Hide();
         }
 
         private void btnDesserts_Click(object sender, EventArgs e)
         {
-            FrmDesserts to = new FrmDesserts();
+            FrmDesserts to = new FrmDesserts(this);
             to.Show();
             this.Hide();
         }
 
         private void btnSides_Click(object sender, EventArgs e)
         {
-            FrmSides to = new FrmSides();
+            FrmSides to = new FrmSides(this);
             to.Show();
             this.Hide();
         }
 
         private void btnDrinks_Click(object sender, EventArgs e)
         {
-            FrmDrinks to = new FrmDrinks();
+            FrmDrinks to = new FrmDrinks(this);
             to.Show();
             this.Hide();
         }
 
         private void btnWraps_Click(object sender, EventArgs e)
         {
-            FrmWraps to = new FrmWraps();
+            FrmWraps to = new FrmWraps(this);
             to.Show();
             this.Hide();
         }

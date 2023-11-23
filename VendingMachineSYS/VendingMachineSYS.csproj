@@ -148,6 +148,7 @@
       <DependentUpon>FrmWraps.cs</DependentUpon>
     </Compile>
     <Compile Include="MenuItem.cs" />
+    <Compile Include="Order.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FrmBurgers.resx">
